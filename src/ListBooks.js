@@ -12,7 +12,7 @@ class ListBooks extends Component {
     return (
       <div className={divClassName}>
         <ol className="books-grid">
-          {books.map((book) =>
+          {books.filter((book) => book && book.id && book.imageLinks && book.authors && book.title).map((book) =>
             <li key={book.id}>
               <div className="book">
                 <div className="book-top">
@@ -23,7 +23,7 @@ class ListBooks extends Component {
                     }}>
                   </div>
                   <div className="book-shelf-changer">
-                    <select value={book.shelf}
+                    <select value={book.shelf || 'none'}
                       onChange={(event) => onChangeShelf(book, event.target.value)}
                     >
                       <option value="none" disabled>Move to...</option>
