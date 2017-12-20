@@ -1,30 +1,47 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom'
-import SearchBooks from './SearchBooks'
-import BookShelfs from './BookShelfs'
+import SearchBooks from './components/SearchBooks'
+import BookShelfs from './components/BookShelfs'
 import * as BooksAPI from './BooksAPI'
+import sortBy from 'sort-by'
 import './App.css'
 
 class BooksApp extends Component {
   state = {
-    books: []
+    books: [],
+    bookShelfs: []
   }
   componentDidMount() {
-    BooksAPI.getAll().then((books) => {
-      this.setState({ books })
+    BooksAPI.getAll().then(bookShelfs => {
+      this.setState({ bookShelfs })
     })
   }
 
+  searchBook = (query) => {
+    if (query) {
+      BooksAPI.search(query, 20).then(books => {
+        let sortedBooks = books
+        sortedBooks.sort(sortBy('title'))
+        this.setState({ books: sortedBooks })
+      })
+    } else {
+      this.setState({ books: [] })
+    }
+  }
+
   changeShelf = (book, shelf) => {
-    let otherBooks = this.state.books.filter((b) => b.id !== book.id)
-    let updatedBook = book
-    updatedBook.shelf = shelf
+    BooksAPI.update(book, shelf).then(response => {
+      this.setState(state => {
+        book.shelf = shelf
+        bookShelfs: state.bookShelfs
+                    .filter(b => b.id !== book.id)
+                    .concat([book])
+      })
+    })
+  }
 
-    this.setState((state) => ({
-      books: otherBooks.concat([ updatedBook ])
-    }))
-
-    BooksAPI.update(book, shelf)
+  clearSearchPage = () => {
+    this.setState({ books: [] })
   }
 
   render() {
@@ -32,13 +49,15 @@ class BooksApp extends Component {
       <div className="app">
        <Route path='/search' render={() => (
          <SearchBooks
+          books={this.state.books}
           searchBook={this.searchBook}
           onChangeShelf={this.changeShelf}
+          clearSearchPage={this.clearSearchPage}
           />
         )}/>
        <Route exact path='/' render={() => (
          <BookShelfs
-          books={this.state.books}
+          books={this.state.bookShelfs}
           onChangeShelf={this.changeShelf}
           />
         )}/>

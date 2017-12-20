@@ -1,32 +1,24 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import ListBooks from './ListBooks'
-import * as BooksAPI from './BooksAPI'
-import sortBy from 'sort-by'
-
 
 class SearchBooks extends Component {
   state = {
     query: '',
-    books: []
   }
 
-  updateQuery = (query) => {
+  updateQuery = query => {
     this.setState({ query })
-    if (query) {
-      BooksAPI.search(query, 20).then((books) => {
-        let sortedBooks = books
-        sortedBooks.sort(sortBy('title'))
-        this.setState({ books: sortedBooks })
-      })
-    } else {
-      this.setState({ books: [] })
-    }
+    this.props.searchBook(query)
+  }
+
+  componentWillUnmount() {
+    this.props.clearSearchPage();
   }
 
   render() {
-    const { onChangeShelf } = this.props
-    const { query, books } = this.state
+    const { onChangeShelf, books } = this.props
+    const { query } = this.state
 
     return (
       <div className="search-books">

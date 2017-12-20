@@ -8,18 +8,20 @@ class ListBooks extends Component {
 
   render() {
     const { books, divClassName, onChangeShelf } = this.props
+    const default_img = `http://books.google.com/books/content?id=\
+    a_asDAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api`
 
     return (
       <div className={divClassName}>
         <ol className="books-grid">
-          {books.filter((book) => book && book.id && book.imageLinks && book.authors && book.title).map((book) =>
+          {books.map(book =>
             <li key={book.id}>
               <div className="book">
                 <div className="book-top">
                   <div className="book-cover" style={
                     { width: 128,
                       height: 192,
-                      backgroundImage: `url(${book.imageLinks.thumbnail})`
+                      backgroundImage: `url(${book.imageLinks.thumbnail || default_img})`
                     }}>
                   </div>
                   <div className="book-shelf-changer">
@@ -35,7 +37,7 @@ class ListBooks extends Component {
                   </div>
                 </div>
                 <div className="book-title">{book.title}</div>
-                <div className="book-authors">{book.authors.join('\n')}</div>
+                <div className="book-authors">{book.authors ? book.authors.join('\n') : "Unknown authors"}</div>
               </div>
             </li>
           )}
