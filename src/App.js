@@ -20,9 +20,11 @@ class BooksApp extends Component {
   searchBook = (query) => {
     if (query) {
       BooksAPI.search(query, 20).then(books => {
-        let sortedBooks = books
-        sortedBooks.sort(sortBy('title'))
-        this.setState({ books: sortedBooks })
+        if(typeof books.error === 'undefined') {
+          let sortedBooks = books
+          sortedBooks.sort(sortBy('title'))
+          this.setState({ books: sortedBooks })
+        }
       })
     } else {
       this.setState({ books: [] })
@@ -31,9 +33,9 @@ class BooksApp extends Component {
 
   changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf).then(response => {
-      this.setState(state => {
-        book.shelf = shelf
-        bookShelfs: state.bookShelfs
+      book.shelf = shelf
+      this.setState({
+        bookShelfs: this.state.bookShelfs
                     .filter(b => b.id !== book.id)
                     .concat([book])
       })
