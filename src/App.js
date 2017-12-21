@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import SearchBooks from './components/SearchBooks'
 import BookShelfs from './components/BookShelfs'
+import NoMatch from './components/NoMatch'
 import * as BooksAPI from './BooksAPI'
 import sortBy from 'sort-by'
 import './App.css'
@@ -23,7 +24,14 @@ class BooksApp extends Component {
         if(typeof books.error === 'undefined') {
           let sortedBooks = books
           sortedBooks.sort(sortBy('title'))
+          sortedBooks.map(book => {
+            let bookInShelf = this.state.bookShelfs.find(item => item.id === book.id)
+            if (bookInShelf) book.shelf = bookInShelf.shelf
+            return book
+          })
           this.setState({ books: sortedBooks })
+        } else {
+          this.clearSearchPage()
         }
       })
     } else {
@@ -49,20 +57,23 @@ class BooksApp extends Component {
   render() {
     return (
       <div className="app">
-       <Route path='/search' render={() => (
-         <SearchBooks
-          books={this.state.books}
-          searchBook={this.searchBook}
-          onChangeShelf={this.changeShelf}
-          clearSearchPage={this.clearSearchPage}
-          />
-        )}/>
-       <Route exact path='/' render={() => (
-         <BookShelfs
-          books={this.state.bookShelfs}
-          onChangeShelf={this.changeShelf}
-          />
-        )}/>
+        <Switch>
+           <Route path='/search' render={() => (
+             <SearchBooks
+              books={this.state.books}
+              searchBook={this.searchBook}
+              onChangeShelf={this.changeShelf}
+              clearSearchPage={this.clearSearchPage}
+              />
+            )}/>
+           <Route exact path='/' render={() => (
+             <BookShelfs
+              books={this.state.bookShelfs}
+              onChangeShelf={this.changeShelf}
+              />
+            )}/>
+          <Route component={NoMatch}/>
+        </Switch>
       </div>
     )
   }
